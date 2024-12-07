@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1A2B Game</title>
+</head>
+<body>
+    <h1>113306064_HW6_1A2B</h1>
+    <div>
+        <input type="text" id="guess-input" maxlength="4" placeholder="請輸入4個不重複的數字">
+        <button onclick="checkAnswer()">提交</button>
+        <p id="error-message" style="color: red;"></p>
+        <h3>猜測紀錄：</h3>
+        <ul id="guess-history"></ul>
+    </div>
+    <script>
+        // 隨機生成 4 個不重複的數字作為謎底
+        let secretNumber = generateSecretNumber();
+        let guessCount = 0;
+
+        console.log("隨機生成的謎底：", secretNumber); // 測試謎底
+
+        function generateSecretNumber() {
+            const numbers = Array.from({ length: 10 }, (_, i) => i); // 0~9 的數字陣列
+            const secret = [];
+            while (secret.length < 4) {
+                const index = Math.floor(Math.random() * numbers.length);
+                secret.push(numbers[index]);
+                numbers.splice(index, 1); // 移除已選的數字
+            }
+            return secret;
+        }
+
+        function checkAnswer() {
+            const guessInput = document.getElementById("guess-input").value;
+            console.log("使用者輸入：", guessInput); // 檢查輸入是否正確讀取
+
+            const errorMessage = document.getElementById("error-message");
+            const guessHistory = document.getElementById("guess-history");
+
+            // 清空錯誤訊息
+            errorMessage.textContent = "";
+
+            // 驗證輸入格式
+            if (!/^\d{4}$/.test(guessInput)) {
+                console.log("錯誤：輸入的不是四位數字");
+                errorMessage.textContent = "請輸入四位數字！";
+                return;
+            }
+            const guessArray = guessInput.split("").map(Number);
+            if (new Set(guessArray).size !== 4) {
+                console.log("錯誤：輸入的數字有重複");
+                errorMessage.textContent = "數字不能重複！";
+                return;
+            }
+
+            // 比對答案
+            guessCount++;
+            let A = 0, B = 0;
+            guessArray.forEach((num, index) => {
+                if (secretNumber[index] === num) A++;
+                else if (secretNumber.includes(num)) B++;
+            });
+
+            console.log(`${guessInput} => ${A}A${B}B`); // 打印比對結果
+
+            // 更新猜測紀錄
+            const result = document.createElement("li");
+            result.textContent = `${guessInput} => ${A}A${B}B`;
+            guessHistory.appendChild(result);
+
+            // 結束條件
+            if (A === 4) {
+                alert(`恭喜答對！總共猜了 ${guessCount} 次`);
+                resetGame(); // 重置遊戲
+            }
+
+            // 清空輸入框
+            document.getElementById("guess-input").value = "";
+        }
+
+        // 重置遊戲
+        function resetGame() {
+            secretNumber = generateSecretNumber();
+            guessCount = 0;
+            document.getElementById("guess-history").innerHTML = "";
+            console.log("新的隨機謎底：", secretNumber);
+        }
+    </script>
+</body>
+</html>
